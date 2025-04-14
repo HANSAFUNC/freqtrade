@@ -279,9 +279,12 @@ def check_config(config_file):
             logger.error(f"读取配置文件时出错: {str(e)}")
             return False, None
         
-        # 使用FreqTrade的配置加载器
-        config = Configuration.from_files([str(config_path)])
-        logger.info(f"配置文件加载成功: {config_path}")
+        # 使用正确的方式创建配置对象
+        logger.info("创建Arguments对象...")
+        logger.info(f"最终下载参数: {' '.join(arguments)}")
+        args = Arguments(arguments).get_parsed_arg()
+        logger.info("从配置文件加载配置...")
+        config = Configuration.from_files([config_path])
         
         # 打印配置摘要
         print_config_summary(config)
@@ -329,6 +332,8 @@ def download_data(config_file, pairs, timerange):
         '--timerange', timerange,
         # 增加详细输出
         '-v',
+        # 添加期货模式
+        '--trading-mode', 'futures',
     ]
     
     if pairs:
@@ -340,16 +345,22 @@ def download_data(config_file, pairs, timerange):
     logger.info(f"下载参数: {' '.join(arguments)}")
     
     try:
+        # 确保arguments中包含必要的参数
+        if '--trading-mode' not in ' '.join(arguments):
+            arguments.extend(['--trading-mode', 'futures'])
+        
+        # 创建数据目录
+        data_dir = Path(FREQTRADE_DIR) / 'ggggggg' / 'user_data' / 'data'
+        data_dir.mkdir(parents=True, exist_ok=True)
+        
+        # 添加数据目录参数
+        if '--datadir' not in ' '.join(arguments):
+            arguments.extend(['--datadir', str(data_dir)])
+        
         # 使用正确的方式创建配置对象
         logger.info("创建Arguments对象...")
+        logger.info(f"最终下载参数: {' '.join(arguments)}")
         args = Arguments(arguments).get_parsed_arg()
-        logger.info("从配置文件加载配置...")
-        config = Configuration.from_files([config_path])
-        
-        # 验证数据目录存在
-        data_dir = config.get('user_data_dir', str(FREQTRADE_DIR / 'user_data')) + '/data'
-        os.makedirs(data_dir, exist_ok=True)
-        logger.info(f"数据目录: {data_dir}")
         
         # 显示交易所和交易对信息
         exchange = config.get('exchange', {}).get('name', '未设置')
@@ -373,8 +384,38 @@ def download_data(config_file, pairs, timerange):
         # 下载数据
         logger.info("开始执行数据下载...")
         try:
-            start_download_data(args)
-            logger.info("数据下载完成!")
+            # 选项1: 使用start_download_data API
+            try:
+                start_download_data(args)
+                logger.info("数据下载完成!")
+                # 询问用户是否继续执行回测
+                if input("数据下载已完成，是否继续执行回测? (y/n): ").lower() != 'y':
+                    logger.info("用户选择退出，不执行回测")
+                    return
+            except Exception as api_error:
+                logger.error(f"使用API下载数据失败: {str(api_error)}")
+                logger.info("尝试使用命令行方式下载...")
+                
+                # 选项2: 构建完整命令并使用os.system执行
+                data_dir = Path(FREQTRADE_DIR) / 'ggggggg' / 'user_data' / 'data'
+                data_dir.mkdir(parents=True, exist_ok=True)
+                
+                cli_cmd = ' '.join(['freqtrade', 'download-data', 
+                                  f'--config={config_path}',
+                                  f'--datadir={data_dir}',
+                                  '--trading-mode', 'futures',
+                                  ] + 
+                                  ([] if not pairs else ['--pairs'] + pairs) +
+                                  (['--timerange', timerange] if timerange else []) +
+                                  ['-v'])
+                
+                logger.info(f"执行命令: {cli_cmd}")
+                exit_code = os.system(cli_cmd)
+                
+                if exit_code != 0:
+                    logger.error(f"命令行下载失败，退出代码: {exit_code}")
+                else:
+                    logger.info("数据下载完成!")
         except Exception as e:
             logger.error(f"数据下载过程出现错误: {str(e)}")
             logger.error("详细错误信息:")
@@ -515,7 +556,7 @@ def run_command(run_mode, config_file, strategy_name, pairs=None, timerange=None
             return False
     
     # 确保数据目录存在
-    data_dir = Path(FREQTRADE_DIR) / 'user_data' / 'data'
+    data_dir = Path(FREQTRADE_DIR) / 'ggggggg' / 'user_data' / 'data'
     data_dir.mkdir(parents=True, exist_ok=True)
     logger.info(f"确保数据目录存在: {data_dir}")
     
@@ -535,6 +576,9 @@ def run_command(run_mode, config_file, strategy_name, pairs=None, timerange=None
         # 添加时间框架，分开指定每个时间框架
         cmd.extend(['--timeframes', '5m', '15m', '1h'])
         
+        # 指定交易模式为期货
+        cmd.extend(['--trading-mode', 'futures'])
+        
         # 增加详细输出，以便查看进度
         cmd.append('-v')
         
@@ -546,7 +590,8 @@ def run_command(run_mode, config_file, strategy_name, pairs=None, timerange=None
     elif run_mode == 'backtest':
         cmd.insert(1, 'backtesting')
         # 添加数据目录
-        cmd.extend(['--datadir', str(data_dir)])
+        cmd.extend(['--datadir', str(data_dir) + "/okx/futures"])
+        
         # 回测时需要指定策略
         if strategy_name:
             cmd.extend(['--strategy', strategy_name])
@@ -569,35 +614,22 @@ def run_command(run_mode, config_file, strategy_name, pairs=None, timerange=None
     logger.info(f"执行命令: {cmd_str}")
     
     try:
-        # 使用Popen并实时显示输出，这样可以看到下载进度
-        process = subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            bufsize=1,
-            universal_newlines=True
-        )
+        # 使用os.system直接执行命令，输出会直接显示在控制台
+        logger.info("开始执行命令，请等待...")
+        exit_code = os.system(cmd_str)
         
-        # 实时显示标准输出
-        while True:
-            output = process.stdout.readline()
-            if output == '' and process.poll() is not None:
-                break
-            if output:
-                print(output.strip())
-        
-        # 检查命令执行结果
-        return_code = process.poll()
-        if return_code != 0:
-            logger.error(f"命令执行失败，退出代码: {return_code}")
-            stderr = process.stderr.read()
-            if stderr:
-                logger.error("错误信息:")
-                logger.error(stderr)
+        if exit_code != 0:
+            logger.error(f"命令执行失败，退出代码: {exit_code}")
             return False
         
         logger.info("命令执行成功!")
+        
+        # 如果是下载数据模式，询问用户是否继续
+        if run_mode == 'download':
+            if input("数据下载已完成，是否继续执行回测? (y/n): ").lower() != 'y':
+                logger.info("用户选择退出，不执行回测")
+                return True
+                
         return True
     except Exception as e:
         logger.error(f"执行命令时发生异常: {str(e)}")
@@ -671,6 +703,11 @@ def main():
             logger.error("无法创建用户目录，终止数据下载")
             return False
             
+        # 确保数据目录存在
+        data_dir = Path(FREQTRADE_DIR) / 'ggggggg' / 'user_data' / 'data'
+        data_dir.mkdir(parents=True, exist_ok=True)
+        logger.info(f"确保数据目录存在: {data_dir}")
+            
         # 尝试直接使用官方推荐的命令行方式下载数据
         logger.info("使用标准命令行方式下载数据...")
         
@@ -678,8 +715,9 @@ def main():
         download_cmd = [
             'freqtrade', 'download-data',
             '--config', config_file,
-            # 不使用--userdir，让FreqTrade使用默认用户目录
+            '--datadir', str(data_dir),  # 明确指定数据目录
             '--timeframes', '5m', '15m', '1h',  # 使用固定的时间框架参数
+            '--trading-mode', 'futures',  # 指定交易模式为期货
             '-v',  # 增加详细输出以便查看进度
         ]
         
@@ -690,37 +728,26 @@ def main():
             download_cmd.extend(['--timerange', timerange])
             
         try:
-            logger.info(f"执行命令: {' '.join([str(cmd) for cmd in download_cmd])}")
+            # 将命令转换为字符串
+            cmd_str = ' '.join([str(cmd) for cmd in download_cmd])
+            logger.info(f"执行命令: {cmd_str}")
             
-            # 使用Popen替代run以实时显示输出
-            process = subprocess.Popen(
-                download_cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                bufsize=1,
-                universal_newlines=True
-            )
+            # 使用os.system直接执行命令，输出会显示在控制台
+            logger.info("开始下载数据，请等待...")
+            exit_code = os.system(cmd_str)
             
-            # 实时显示输出
-            while True:
-                output = process.stdout.readline()
-                if output == '' and process.poll() is not None:
-                    break
-                if output:
-                    print(output.strip())
-            
-            # 检查执行结果
-            return_code = process.poll()
-            if return_code != 0:
-                stderr = process.stderr.read()
-                logger.error(f"标准命令下载失败: {stderr}")
+            if exit_code != 0:
+                logger.error(f"标准命令下载失败，退出代码: {exit_code}")
                 logger.error("尝试备用方法...")
                 if not run_command('download', config_file, strategy_name, pairs, timerange):
                     logger.error("数据下载失败，终止回测")
                     return False
             else:
                 logger.info("数据下载成功!")
+                # 询问用户是否继续
+                if input("数据下载已完成，是否继续执行回测? (y/n): ").lower() != 'y':
+                    logger.info("用户选择退出，不执行回测")
+                    return True
         except Exception as e:
             logger.error(f"执行下载命令时出错: {str(e)}")
             logger.error("尝试备用方法...")
