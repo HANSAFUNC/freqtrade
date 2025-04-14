@@ -1,0 +1,74 @@
+{
+     "exchange": {
+        "name": "okx",
+        "key": "",
+        "secret": "",
+         "ccxt_config": {
+            "enableRateLimit": true,
+            "rateLimit": 100
+    },
+        "ccxt_async_config": {},
+        "pair_whitelist": [
+            "BTC/USDT",
+            "ETH/USDT"
+        ],
+        "pair_blacklist": []
+    },
+    "dataformat_ohlcv": "feather",
+    "dataformat_trades": "feather",
+    "datadir": "user_data/data",
+    "dry_run": true,
+    "trading_mode": "spot",
+    "stake_currency": "USDT",
+    "stake_amount": "unlimited",
+    "max_open_trades": 3,
+    "fiat_display_currency": "USD",
+    "strategy": "FreqAIStrategy",
+    "strategy_path": "strategies",
+    "freqaimodel": "LightGBMClassifier",
+    "timeframe": "15m",
+    "timerange": "20220101-20230331",
+    "new_pairs_days": 30,
+    "freqai": {
+        "enabled": true,
+        "purge_old_models": 2,
+        "train_period_days": 30,
+        "backtest_period_days": 7,
+        "identifier": "lightgbm_classifier",
+        "feature_parameters": {
+            "include_timeframes": ["15m", "1h", "4h"],
+            "include_corr_pairlist": ["BTC/USDT", "ETH/USDT"],
+            "label_period_candles": 24,
+            "include_shifted_candles": 2,
+            "DI_threshold": 0.9,
+            "weight_factor": 0.9,
+            "principal_component_analysis": false,
+            "use_SVM_to_remove_outliers": true,
+            "indicator_periods_candles": [10, 20, 30],
+            "plot_feature_importances": true
+        },
+        "data_split_parameters": {
+            "test_size": 0.25,
+            "random_state": 42,
+            "shuffle": true,
+            "stratify": true
+        },
+        "model_training_parameters": {
+            "n_estimators": 800,
+            "learning_rate": 0.01,
+            "max_depth": 6,
+            "objective": "binary",
+            "verbosity": 1,
+            "boosting_type": "gbdt",
+            "random_state": 42,
+            "num_leaves": 31
+        },
+        "model_save_parameters": {
+            "max_fit_models": 3
+        }
+    },
+   
+    "internals": {
+        "process_throttle_secs": 5
+    }
+} 
