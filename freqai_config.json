@@ -6,8 +6,11 @@
          "ccxt_config": {
             "enableRateLimit": true,
             "rateLimit": 100
-    },
-        "ccxt_async_config": {},
+         },
+        "ccxt_async_config": {
+            "enableRateLimit": true,
+            "rateLimit": 100
+        },
         "pair_whitelist": [
             "BTC/USDT",
             "ETH/USDT"
@@ -25,9 +28,12 @@
     "fiat_display_currency": "USD",
     "strategy": "FreqAIStrategy",
     "strategy_path": "strategies",
+
     "freqaimodel": "LightGBMClassifier",
     "timeframe": "15m",
     "timerange": "20220101-20230331",
+    "timeframes": ["15m","1h", "4h", "1d"],
+
     "new_pairs_days": 30,
     "freqai": {
         "enabled": true,
@@ -36,7 +42,7 @@
         "backtest_period_days": 7,
         "identifier": "lightgbm_classifier",
         "feature_parameters": {
-            "include_timeframes": ["15m", "1h", "4h"],
+            "include_timeframes": ["15m","1h", "4h", "1d"],
             "include_corr_pairlist": ["BTC/USDT", "ETH/USDT"],
             "label_period_candles": 24,
             "include_shifted_candles": 2,

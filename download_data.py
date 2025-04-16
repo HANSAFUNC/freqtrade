@@ -12,8 +12,9 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
 )
 logger = logging.getLogger("下载数据")
+logger.disabled = True
 
-def load_config(config_file='freqai_config.json'):
+def load_config(config_file='download_config.json'):
     """
     加载配置文件
     """
@@ -34,9 +35,10 @@ def download_data(config):
         from freqtrade.data.history.history_utils import refresh_backtest_ohlcv_data
         from freqtrade.exchange import Exchange
         from freqtrade.resolvers import ExchangeResolver
-        from freqtrade.constants import Config
+        # from freqtrade.constants import Config
         # 确保数据目录存在
-        data_dir = Path(config.get('datadir', 'user_data/data'))
+        data_dir = config.get('datadir', 'user_data/data')
+
         data_dir.mkdir(parents=True, exist_ok=True)
 
         # 要下载的交易对
@@ -44,7 +46,7 @@ def download_data(config):
 
         # 要下载的时间周期
         timeframe = config.get('timeframe', '15m')
-        timeframes = config['freqai']['feature_parameters'].get('include_timeframes', [timeframe])
+        timeframes = config.get('timeframes', [timeframe])
 
         # 时间范围
         timerange = config.get('timerange', None)
