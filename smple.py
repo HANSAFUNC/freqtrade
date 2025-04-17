@@ -39,11 +39,11 @@ def main():
     print(config)
 
     # 下载数据
-    success = download_data(config)
-    if not success:
-        print("脚本无法自动下载数据，请按照上面的提示手动下载。")
-    else:
-        print("数据下载成功，现在可以运行FreqAI训练了。")
+    # success = download_data(config)
+    # if not success:
+    #     print("脚本无法自动下载数据，请按照上面的提示手动下载。")
+    # else:
+    #     print("数据下载成功，现在可以运行FreqAI训练了。")
     # print('数据下载完成！')
     # Define some constants
     config["timeframe"] = "15m"
@@ -57,11 +57,19 @@ def main():
     # Load data using values set above
     from freqtrade.data.history import load_pair_history
     from freqtrade.enums import CandleType
+    from freqtrade.configuration import TimeRange
+    # 要下载的时间周期
+    timeframe = config.get('timeframe', '15m')
+    timeframes = config.get('timeframes', [timeframe])
 
+    # 时间范围
+    timerange = "20230120-20250401"
 
+    timerange = TimeRange.parse_timerange(timerange)
     candles = load_pair_history(
         datadir=data_location,
-        timeframe=config["timeframe"],
+        timeframe=timeframe,
+        timerange=timerange,
         pair=pair,
         data_format="feather",  # Make sure to update this to your data
         candle_type=CandleType.SPOT,
@@ -70,7 +78,7 @@ def main():
     # Confirm success
     print(f"Loaded {len(candles)} rows of data for {pair} from {data_location}")
     candles.head(100)
-    print(candles.head(100))
+    # print(candles.head(100))
 
 
     # Load strategy using values set above

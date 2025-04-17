@@ -17,6 +17,16 @@
         ],
         "pair_blacklist": []
     },
+    "pairlists": [
+        {
+            "method": "StaticPairList",
+            "pairs": [
+                "BTC/USDT",
+                "ETH/USDT"
+            ]
+        }
+    ],
+
     "dataformat_ohlcv": "feather",
     "dataformat_trades": "feather",
     "datadir": "user_data/data",
@@ -31,7 +41,7 @@
 
     "freqaimodel": "LightGBMClassifier",
     "timeframe": "15m",
-    "timerange": "20220101-20230331",
+    "timerange": "20240120-20250331",
     "timeframes": ["15m","1h", "4h", "1d"],
 
     "new_pairs_days": 30,
@@ -50,8 +60,9 @@
             "weight_factor": 0.9,
             "principal_component_analysis": false,
             "use_SVM_to_remove_outliers": true,
-            "indicator_periods_candles": [10, 20, 30],
-            "plot_feature_importances": true
+            "indicator_periods_candles": [10, 20],
+            "plot_feature_importances": true,
+            "buffer_train_data_candles": 200
         },
         "data_split_parameters": {
             "test_size": 0.25,

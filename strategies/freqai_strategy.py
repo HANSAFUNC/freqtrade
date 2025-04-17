@@ -21,7 +21,7 @@ class FreqAIStrategy(IStrategy):
     stoploss = -0.1  # 10% 止损
 
     # 时间周期
-    timeframe = '1h'
+    timeframe = '15m'
 
     # 定义最大启动蜡烛数
     startup_candle_count: int = 20
@@ -31,18 +31,22 @@ class FreqAIStrategy(IStrategy):
         填充指标
         """
         # FreqAI 启动
+
         dataframe = self.freqai.start(dataframe, metadata, self)
         return dataframe
 
-    def feature_engineering_expand_all(self, dataframe: DataFrame, period, **kwargs) -> DataFrame:
+    def feature_engineering_expand_all(self, dataframe: DataFrame, period, metadata, **kwargs) -> DataFrame:
         """
         FreqAI 特征工程扩展
         """
+        # print(dataframe)
+        print(metadata["tf"])
         dataframe["%-rsi-period"] = ta.RSI(dataframe, timeperiod=period)
         dataframe["%-mfi-period"] = ta.MFI(dataframe, timeperiod=period)
         dataframe["%-adx-period"] = ta.ADX(dataframe, timeperiod=period)
         dataframe["%-sma-period"] = ta.SMA(dataframe, timeperiod=period)
         dataframe["%-ema-period"] = ta.EMA(dataframe, timeperiod=period)
+        dataframe.dropna(inplace=True)
         return dataframe
 
     def feature_engineering_expand_basic(self, dataframe: DataFrame, **kwargs) -> DataFrame:
@@ -68,7 +72,7 @@ class FreqAIStrategy(IStrategy):
         # 设置分类目标
         self.freqai.class_names = ["down", "up"]
         dataframe['&s-up_or_down'] = np.where(
-            dataframe["close"].shift(-100) > dataframe["close"], 'up', 'down'
+            dataframe["close"].shift(-24) > dataframe["close"], 'up', 'down'
         )
         return dataframe
 
