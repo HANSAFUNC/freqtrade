@@ -39,11 +39,11 @@ def main():
     print(config)
 
     # 下载数据
-    # success = download_data(config)
-    # if not success:
-    #     print("脚本无法自动下载数据，请按照上面的提示手动下载。")
-    # else:
-    #     print("数据下载成功，现在可以运行FreqAI训练了。")
+    success = download_data(config)
+    if not success:
+        print("脚本无法自动下载数据，请按照上面的提示手动下载。")
+    else:
+        print("数据下载成功，现在可以运行FreqAI训练了。")
     # print('数据下载完成！')
     # Define some constants
     config["timeframe"] = "15m"
