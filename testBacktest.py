@@ -27,11 +27,9 @@ def backtesing():
 
     args = ["backtesting",
             "--config",
-            "freqai_config.json",
+            "freqai_config2.json",
             "--strategy",
             CURRENT_TEST_STRATEGY,
-            "--timeframe",
-            "15m"
            ]
     # start_webserver(get_args(args))
     # start_trading(get_args(args))

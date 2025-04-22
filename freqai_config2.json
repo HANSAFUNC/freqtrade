@@ -14,7 +14,7 @@
         },
         "pair_whitelist": [
             "BTC/USDT",
-            "ETH/USDT"
+
         ],
         "pair_blacklist": []
     },
@@ -23,7 +23,7 @@
             "method": "StaticPairList",
             "pairs": [
                 "BTC/USDT",
-                "ETH/USDT"
+
             ]
         }
     ],
@@ -60,33 +60,40 @@
         "backtest_period_days": 7,
         "identifier": "LightGBMRegressor-1",
         "feature_parameters": {
-            "include_timeframes": ["15m","1h"],
-            "include_corr_pairlist": ["BTC/USDT", "ETH/USDT"],
-            "label_period_candles": 24,
-            "include_shifted_candles": 2,
+            "include_timeframes": ["15m"],
+            "indicator_periods_candles": [5,10,20],
+            "include_corr_pairlist": ["BTC/USDT"],
+            "label_period_candles": 4,
+            "include_shifted_candles": 4,
             "DI_threshold": 0.9,
             "weight_factor": 0.9,
-            "principal_component_analysis": false,
+            "principal_component_analysis": true,
             "use_SVM_to_remove_outliers": true,
-            "indicator_periods_candles": [10, 20],
+
             "plot_feature_importances": 0,
             "buffer_train_data_candles": 200
         },
         "data_split_parameters": {
             "test_size": 0.25,
             "random_state": 42,
-
-
         },
         "model_training_parameters": {
-            "n_estimators": 800,
-            "learning_rate": 0.01,
-            "max_depth": 6,
-            "objective": "binary",
-            "verbosity": 1,
+            "objective": "regression",
+            "metric": ["l2", "l1"],
             "boosting_type": "gbdt",
+            "n_estimators": 1000,
+            "learning_rate": 0.05,
+            "max_depth": 6,
+            "num_leaves": 31,
+            "min_data_in_leaf": 20,
+            "min_gain_to_split": 0.0,
+            "feature_fraction": 0.8,
+            "bagging_fraction": 0.8,
+            "bagging_freq": 5,
+            "lambda_l1": 0.1,
+            "lambda_l2": 0.1,
             "random_state": 42,
-            "num_leaves": 31
+            "verbosity": 1
         },
         "model_save_parameters": {
             "max_fit_models": 1
