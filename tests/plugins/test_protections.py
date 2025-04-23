@@ -11,7 +11,7 @@ from freqtrade.plugins.protectionmanager import ProtectionManager
 from tests.conftest import get_patched_freqtradebot, log_has_re
 
 
-AVAILABLE_PROTECTIONS = ["CooldownPeriod", "LowProfitPairs", "MaxDrawdown", "StoplossGuard"]
+AVAILABLE_PROTECTIONS = ["CooldownPeriod", "LowProfitPairs", "MaxDrawdown", "StoplossGuard","EVOCooldownPeriod"]
 
 
 def generate_mock_trade(
