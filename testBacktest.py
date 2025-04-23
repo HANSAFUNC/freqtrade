@@ -14,11 +14,10 @@ CURRENT_TEST_STRATEGY = "E0V1E"
 def trade():
     args = ["trade",
             "--config",
-            "freqai_config.json",
+            "EVOConfig/config.json",
             "--strategy",
             CURRENT_TEST_STRATEGY,
-            "--freqaimodel",
-            "LightGBMClassifier"]
+           ]
     # start_webserver(get_args(args))
     # start_trading(get_args(args))
     main(args)
@@ -71,4 +70,4 @@ def evo_backtesing():
     main(args)
 
 if __name__ == "__main__":
-    evo_backtesing()
+    trade()
