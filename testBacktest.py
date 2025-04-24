@@ -14,28 +14,26 @@ CURRENT_TEST_STRATEGY = "E0V1E"
 def trade():
     args = ["trade",
             "--config",
-            "EVOConfig/config.json",
-            "--strategy",
-            CURRENT_TEST_STRATEGY,
+            "myConfigs/evoconfig.json",
            ]
+    print("执行命令:", " ".join(args))
     # start_webserver(get_args(args))
     # start_trading(get_args(args))
     main(args)
 
 def backtesing():
-
     args = ["backtesting",
             "--config",
             "freqai_config2.json",
             "--strategy",
             CURRENT_TEST_STRATEGY,
            ]
+    print("执行命令:", " ".join(args))
     # start_webserver(get_args(args))
     # start_trading(get_args(args))
     main(args)
 
 def download_data():
-
     args = ["download-data",
             "--config",
             "EVOConfig/config_binance_spot.json",
@@ -44,13 +42,12 @@ def download_data():
             "--timeframes",
             "5m"
            ]
+    print("执行命令:", " ".join(args))
     # start_webserver(get_args(args))
     # start_trading(get_args(args))
     main(args)
 
-
 def evo_backtesing():
-
     args = ["backtesting",
             "--config",
             "EVOConfig/config_binance_spot.json",
@@ -62,13 +59,13 @@ def evo_backtesing():
             "--timeframe",
             "5m",
             "--enable-protections"
-
            ]
+    print("执行命令:", " ".join(args))
     # start_webserver(get_args(args))
     # start_trading(get_args(args))
     main(args)
-def LSTM_backtesing():
 
+def LSTM_backtesing():
     args = ["backtesting",
             "--config",
             "myConfigs/LSTMConfig.json",
@@ -79,11 +76,11 @@ def LSTM_backtesing():
             "month",
             "--timerange",
             "20240301-20240401",
-
            ]
+    print("执行命令:", " ".join(args))
     # start_webserver(get_args(args))
     # start_trading(get_args(args))
     main(args)
 
 if __name__ == "__main__":
-    LSTM_backtesing()
+    trade()
