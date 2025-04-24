@@ -1,0 +1,88 @@
+{
+  "bot_name": "freqtrade",
+  "stake_currency": "USDT",
+  "fiat_display_currency": "USD",
+  "dry_run": true,
+  "cancel_open_orders_on_exit": false,
+  "timerange": "20240120-20250331",
+  "entry_pricing": {
+    "price_side": "other",
+    "use_order_book": true,
+    "order_book_top": 1,
+    "price_last_balance": 0,
+    "check_depth_of_market": {
+      "enabled": false,
+      "bids_to_ask_delta": 1
+    }
+  },
+  "exit_pricing": {
+    "price_side": "other",
+    "use_order_book": true,
+    "order_book_top": 1,
+    "price_last_balance": 0
+  },
+  "exchange": {
+    "name": "binance",
+    "key": "",
+    "password": "",
+    "secret": "",
+    "walletAddress": "",
+    "privateKey": "",
+    "ccxt_config": {},
+    "ccxt_async_config": {},
+
+  },
+  "telegram": {
+    "enabled": true,
+    "token": "8196921596:AAGlNQFGo513ZdNgyaWfIqYuoYDSNDaRv6Y",
+    "chat_id": "-4648733071",
+    "reload": true,
+    "keyboard": [
+      ["/daily", "/stats", "/balance", "/profit"],
+      ["/status table", "/performance"],
+      ["/reload_config", "/count", "/logs"]
+    ],
+    "notification_settings": {
+      "status": "silent",
+      "protection_trigger_global": "on",
+      "warning": "on",
+      "startup": "off",
+      "entry": "silent",
+      "entry_fill": "on",
+      "entry_cancel": "on",
+      "exit_cancel": "on",
+      "exit_fill": "on",
+      "exit": {
+        "roi": "silent",
+        "emergency_exit": "silent",
+        "force_exit": "silent",
+        "exit_signal": "silent",
+        "trailing_stop_loss": "silent",
+        "stop_loss": "silent",
+        "stoploss_on_exchange": "silent",
+        "custom_exit": "silent"
+      },
+      "strategy_msg": "silent",
+    },
+    "balance_dust_level": 0.01
+  },
+
+   "api_server": {
+      "enabled": true,
+      "listen_ip_address": "127.0.0.1",
+      "listen_port": 8080,
+      "verbosity": "error",
+      "enable_openapi": false,
+      "jwt_secret_key": "f50d7b81028916df1a16b3070d94f3a617120c3d20c192c693e3c8fa420578e2",
+      "ws_token": "Hhb-l5tntyxNDCMug5mceULFYxlsh1lMyg",
+      "CORS_origins": [],
+      "username": "freqtrader",
+      "password": "123456"
+    },
+
+  "initial_state": "running",
+  "force_entry_enable": true,
+  "internals": {
+    "process_throttle_secs": 5
+  }
+}
