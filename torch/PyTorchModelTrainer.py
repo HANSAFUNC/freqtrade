@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import Any,Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 import torch
@@ -13,22 +13,21 @@ from freqtrade.freqai.torch.PyTorchTrainerInterface import PyTorchTrainerInterfa
 
 from .datasets import WindowDataset
 
-
 logger = logging.getLogger(__name__)
 
 
 class PyTorchModelTrainer(PyTorchTrainerInterface):
     def __init__(
-        self,
-        model: nn.Module,
-        optimizer: Optimizer,
-        criterion: nn.Module,
-        device: str,
-        data_convertor: PyTorchDataConvertor,
-        model_meta_data: dict[str, Any] | None = None,
-        window_size: int = 1,
-        tb_logger: Any = None,
-        **kwargs,
+            self,
+            model: nn.Module,
+            optimizer: Optimizer,
+            criterion: nn.Module,
+            device: str,
+            data_convertor: PyTorchDataConvertor,
+            model_meta_data: Dict[str, Any] = {},
+            window_size: int = 1,
+            tb_logger: Any = None,
+            **kwargs,
     ):
         """
         :param model: The PyTorch model to be trained.
@@ -45,15 +44,13 @@ class PyTorchModelTrainer(PyTorchTrainerInterface):
         :param n_epochs: The maximum number batches to use for evaluation.
         :param batch_size: The size of the batches to use during training.
         """
-        if model_meta_data is None:
-            model_meta_data = {}
         self.model = model
         self.optimizer = optimizer
         self.criterion = criterion
         self.model_meta_data = model_meta_data
         self.device = device
-        self.n_epochs: int | None = kwargs.get("n_epochs", 10)
-        self.n_steps: int | None = kwargs.get("n_steps", None)
+        self.n_epochs: Optional[int] = kwargs.get("n_epochs", 10)
+        self.n_steps: Optional[int] = kwargs.get("n_steps", None)
         if self.n_steps is None and not self.n_epochs:
             raise Exception("Either `n_steps` or `n_epochs` should be set.")
 
@@ -63,7 +60,7 @@ class PyTorchModelTrainer(PyTorchTrainerInterface):
         self.tb_logger = tb_logger
         self.test_batch_counter = 0
 
-    def fit(self, data_dictionary: dict[str, pd.DataFrame], splits: list[str]):
+    def fit(self, data_dictionary: Dict[str, pd.DataFrame], splits: List[str]):
         """
         :param data_dictionary: the dictionary constructed by DataHandler to hold
         all the training and test data/labels.
@@ -89,7 +86,7 @@ class PyTorchModelTrainer(PyTorchTrainerInterface):
                 xb = xb.to(self.device)
                 yb = yb.to(self.device)
                 yb_pred = self.model(xb)
-                loss = self.criterion(yb_pred, yb)
+                loss = self.criterion(yb_pred.squeeze(), yb.squeeze())
 
                 self.optimizer.zero_grad(set_to_none=True)
                 loss.backward()
@@ -103,9 +100,9 @@ class PyTorchModelTrainer(PyTorchTrainerInterface):
 
     @torch.no_grad()
     def estimate_loss(
-        self,
-        data_loader_dictionary: dict[str, DataLoader],
-        split: str,
+            self,
+            data_loader_dictionary: Dict[str, DataLoader],
+            split: str,
     ) -> None:
         self.model.eval()
         for _, batch_data in enumerate(data_loader_dictionary[split]):
@@ -114,15 +111,15 @@ class PyTorchModelTrainer(PyTorchTrainerInterface):
             yb = yb.to(self.device)
 
             yb_pred = self.model(xb)
-            loss = self.criterion(yb_pred, yb)
+            loss = self.criterion(yb_pred.squeeze(), yb.squeeze())
             self.tb_logger.log_scalar(f"{split}_loss", loss.item(), self.test_batch_counter)
             self.test_batch_counter += 1
 
         self.model.train()
 
     def create_data_loaders_dictionary(
-        self, data_dictionary: dict[str, pd.DataFrame], splits: list[str]
-    ) -> dict[str, DataLoader]:
+            self, data_dictionary: Dict[str, pd.DataFrame], splits: List[str]
+    ) -> Dict[str, DataLoader]:
         """
         Converts the input data to PyTorch tensors using a data loader.
         """
@@ -134,7 +131,7 @@ class PyTorchModelTrainer(PyTorchTrainerInterface):
             data_loader = DataLoader(
                 dataset,
                 batch_size=self.batch_size,
-                shuffle=True,
+                shuffle=False,
                 drop_last=True,
                 num_workers=0,
             )
@@ -150,8 +147,7 @@ class PyTorchModelTrainer(PyTorchTrainerInterface):
         the motivation here is that `n_steps` is easier to optimize and keep stable,
         across different n_obs - the number of data points.
         """
-        if not isinstance(self.n_steps, int):
-            raise ValueError("Either `n_steps` or `n_epochs` should be set.")
+        assert isinstance(self.n_steps, int), "Either `n_steps` or `n_epochs` should be set."
         n_batches = n_obs // self.batch_size
         n_epochs = max(self.n_steps // n_batches, 1)
         if n_epochs <= 10:
@@ -183,7 +179,7 @@ class PyTorchModelTrainer(PyTorchTrainerInterface):
         checkpoint = torch.load(path)
         return self.load_from_checkpoint(checkpoint)
 
-    def load_from_checkpoint(self, checkpoint: dict):
+    def load_from_checkpoint(self, checkpoint: Dict):
         """
         when using continual_learning, DataDrawer will load the dictionary
         (containing state dicts and model_meta_data) by calling torch.load(path).
@@ -202,8 +198,8 @@ class PyTorchTransformerTrainer(PyTorchModelTrainer):
     """
 
     def create_data_loaders_dictionary(
-        self, data_dictionary: dict[str, pd.DataFrame], splits: list[str]
-    ) -> dict[str, DataLoader]:
+            self, data_dictionary: Dict[str, pd.DataFrame], splits: List[str]
+    ) -> Dict[str, DataLoader]:
         """
         Converts the input data to PyTorch tensors using a data loader.
         """
@@ -222,6 +218,7 @@ class PyTorchTransformerTrainer(PyTorchModelTrainer):
             data_loader_dictionary[split] = data_loader
 
         return data_loader_dictionary
+
 
 class PyTorchLSTMTrainer(PyTorchModelTrainer):
     """
@@ -324,3 +321,6 @@ class PyTorchLSTMTrainer(PyTorchModelTrainer):
 
         self.model.train()
         return total_loss / num_batches
+
+
+

@@ -40,7 +40,7 @@ def download_data():
             "--config",
             "EVOConfig/config_binance_spot.json",
            "--timerange",
-            "20240101-20241104",
+            "20240101-20250304",
             "--timeframes",
             "5m"
            ]
@@ -58,11 +58,27 @@ def evo_backtesing():
             "--strategy",
             CURRENT_TEST_STRATEGY,
             "--timerange",
-            "20240101-20241104",
+            "20240101-20251104",
             "--timeframe",
             "5m",
             "--enable-protections"
 
+           ]
+    # start_webserver(get_args(args))
+    # start_trading(get_args(args))
+    main(args)
+def LSTM_backtesing():
+
+    args = ["backtesting",
+            "--config",
+            "myConfigs/LSTMConfig.json",
+            # "EVOConfig/config.json",
+            "--breakdown",
+            "day",
+            "week",
+            "month",
+            "--timerange",
+            "20240301-20240401",
 
            ]
     # start_webserver(get_args(args))
@@ -70,4 +86,4 @@ def evo_backtesing():
     main(args)
 
 if __name__ == "__main__":
-    evo_backtesing()
+    LSTM_backtesing()

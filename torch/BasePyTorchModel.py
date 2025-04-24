@@ -22,7 +22,7 @@ class BasePyTorchModel(IFreqaiModel, ABC):
         if torch.cuda.is_available():
             self.device = "cuda"
         elif torch.backends.mps.is_available():
-            self.device = "cpu"
+            self.device = "mps"
         else:
             self.device = "cpu"
         test_size = self.freqai_info.get("data_split_parameters", {}).get("test_size")
