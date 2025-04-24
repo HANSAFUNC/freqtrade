@@ -70,4 +70,4 @@ def evo_backtesing():
     main(args)
 
 if __name__ == "__main__":
-    trade()
+    evo_backtesing()

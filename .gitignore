@@ -4,6 +4,9 @@ config*.json
 *.sqlite-shm
 *.sqlite-wal
 logfile.txt
+
+myConfigs/*
+!myConfigs/private_config.json
 user_data/*
 !user_data/strategies
 !user_data/notebooks
