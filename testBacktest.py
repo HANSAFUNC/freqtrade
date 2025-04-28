@@ -14,7 +14,7 @@ CURRENT_TEST_STRATEGY = "E0V1E"
 def trade():
     args = ["trade",
             "--config",
-            "myConfigs/evoconfig.json",
+            "myConfigs/evospotconfig.json",
            ]
     print("执行命令:", " ".join(args))
     # start_webserver(get_args(args))
@@ -68,14 +68,14 @@ def evo_backtesing():
 def LSTM_backtesing():
     args = ["backtesting",
             "--config",
-            "myConfigs/LSTMConfig.json",
+            "myConfigs/CustomLSTMConfig.json",
             # "EVOConfig/config.json",
             "--breakdown",
             "day",
             "week",
             "month",
             "--timerange",
-            "20240301-20240401",
+            "20230501-20240729",
            ]
     print("执行命令:", " ".join(args))
     # start_webserver(get_args(args))
@@ -83,4 +83,4 @@ def LSTM_backtesing():
     main(args)
 
 if __name__ == "__main__":
-    evo_backtesing()
+    LSTM_backtesing()
