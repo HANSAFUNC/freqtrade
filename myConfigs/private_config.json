@@ -44,7 +44,7 @@
     "chat_id": "-4648733071",
     "reload": true,
     "keyboard": [
-      ["/daily", "/stats", "/balance", "/profit"],
+      ["/start","/stop","/stopentry","/daily", "/stats", "/balance", "/profit"],
       ["/status table", "/performance"],
       ["/reload_config", "/count", "/logs"]
     ],
